@@ -1,0 +1,39 @@
+#!/usr/bin/env zsh
+zmodload zsh/mathfunc
+
+while true
+do
+	# Use this if you want to go on CPU temp instead of water temperature
+	#temp=$(sensors -j | jq '."k10temp-pci-00c3"."Tdie"."temp1_input"')
+	temp=$(sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --dump --device 0 | awk '/Temperature 0:/ { print $3; }')
+	if [[ $temp == *"Unable"* ]]
+	then
+		sleep 1
+		temp=$(sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --dump --device 0 | awk '/Temperature 0:/ { print $3; }')
+	fi
+	echo $temp > /tmp/water-temp
+	echo -n "Current Water temperature is: "
+	echo -n $temp
+	echo "C"
+	if (($temp > 30))
+	then
+		fanrpm=$((int(500+($temp-30)*100)))
+		pumprpm=$((int(3000+($temp-30)*100)))
+	else
+		fanrpm=600
+		pumprpm=3000
+	fi
+	echo -n "Current Fan RPM is: "
+	echo $fanrpm
+	echo -n "Current Pump RPM is: "
+	echo $pumprpm
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 0 --fan channel=0,mode=1,rpm=$fanrpm > /dev/null 2>&1
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 0 --fan channel=5,mode=1,rpm=$pumprpm > /dev/null 2>&1
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 1 --fan channel=0,mode=1,rpm=$fanrpm > /dev/null 2>&1
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 1 --fan channel=1,mode=1,rpm=$fanrpm > /dev/null 2>&1
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 1 --fan channel=2,mode=1,rpm=$fanrpm > /dev/null 2>&1
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 1 --fan channel=3,mode=1,rpm=$fanrpm > /dev/null 2>&1
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 1 --fan channel=4,mode=1,rpm=$fanrpm > /dev/null 2>&1
+	sudo /usr/share/OpenCorsairLink/OpenCorsairLink.elf --device 1 --fan channel=5,mode=1,rpm=$fanrpm > /dev/null 2>&1
+	sleep 10
+done

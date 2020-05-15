@@ -1,0 +1,9 @@
+[Unit]
+Description=Manage Corsair Hydro X Temperatures
+
+[Service]
+ExecStart=/usr/bin/corsair-temps
+KillMode=process
+
+[Install]
+WantedBy=default.target
