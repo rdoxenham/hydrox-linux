@@ -21,7 +21,7 @@ $ git clone https://github.com/rdoxenham/hydrox-linux
 $ cd hydrox-linux
 $ sudo cp corsair-temps /usr/bin/
 $ sudo chmod +x /usr/bin/corsair-temps
-$ sudo cp corsair-temps /etc/systemd/system/
+$ sudo cp corsair-temps.service /etc/systemd/system/
 ~~~
 
 
